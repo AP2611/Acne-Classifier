@@ -1,0 +1,16 @@
+{
+  "validation_accuracy": 0.72,
+  "test_accuracy": 0.7692307692307693,
+  "feature_dimension": 6132,
+  "best_params": {
+    "C": 3.0,
+    "gamma": "scale",
+    "kernel": "rbf"
+  },
+  "train_class_distribution": [
+    19,
+    10,
+    22,
+    24
+  ]
+}

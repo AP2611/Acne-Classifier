@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "ACNE_MODEL",
+			"path": "."
+		},
+		{
+			"name": "Acne-Classifier",
+			"path": "../../Acne-Classifier"
+		}
+	],
+	"settings": {}
+}

@@ -1,0 +1,39 @@
+{
+  "acne-cystic": {
+    "precision": 0.7,
+    "recall": 1.0,
+    "f1-score": 0.8235294117647058,
+    "support": 7.0
+  },
+  "closed_comedones": {
+    "precision": 1.0,
+    "recall": 0.75,
+    "f1-score": 0.8571428571428571,
+    "support": 4.0
+  },
+  "perioral_dermatitis": {
+    "precision": 0.7142857142857143,
+    "recall": 0.7142857142857143,
+    "f1-score": 0.7142857142857143,
+    "support": 7.0
+  },
+  "rosacea": {
+    "precision": 0.8333333333333334,
+    "recall": 0.625,
+    "f1-score": 0.7142857142857143,
+    "support": 8.0
+  },
+  "accuracy": 0.7692307692307693,
+  "macro avg": {
+    "precision": 0.8119047619047619,
+    "recall": 0.7723214285714286,
+    "f1-score": 0.7773109243697479,
+    "support": 26.0
+  },
+  "weighted avg": {
+    "precision": 0.791025641025641,
+    "recall": 0.7692307692307693,
+    "f1-score": 0.7656755009696187,
+    "support": 26.0
+  }
+}
