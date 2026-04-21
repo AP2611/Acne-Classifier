@@ -11,7 +11,7 @@ from skimage import exposure
 from skimage.feature import hog, local_binary_pattern
 from sklearn.model_selection import train_test_split
 from torchvision import transforms
-from torchvision.models import ResNet18_Weights, resnet18
+from torchvision.models import EfficientNet_B0_Weights, efficientnet_b0
 import torch.nn as nn
 
 IMAGE_SIZE = (224, 224)
@@ -187,11 +187,11 @@ def build_svm_features(paths: Sequence[Path], image_size: Tuple[int, int] = IMAG
     return np.stack(vectors, axis=0)
 
 
-def build_resnet18_classifier(num_classes: int, pretrained: bool = True, dropout_p: float = 0.35):
-    weights = ResNet18_Weights.DEFAULT if pretrained else None
-    model = resnet18(weights=weights)
-    in_features = model.fc.in_features
-    model.fc = nn.Sequential(nn.Dropout(p=dropout_p), nn.Linear(in_features, num_classes))
+def build_efficientnet_b0_classifier(num_classes: int, pretrained: bool = True, dropout_p: float = 0.35):
+    weights = EfficientNet_B0_Weights.DEFAULT if pretrained else None
+    model = efficientnet_b0(weights=weights)
+    in_features = model.classifier[1].in_features
+    model.classifier = nn.Sequential(nn.Dropout(p=dropout_p), nn.Linear(in_features, num_classes))
     return model
 
 

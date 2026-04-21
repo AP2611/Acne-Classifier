@@ -9,7 +9,7 @@ import torch
 import torch.nn.functional as F
 from PIL import Image
 
-from data import build_resnet18_classifier, get_cnn_transform, pil_to_svm_vector
+from data import build_efficientnet_b0_classifier, get_cnn_transform, pil_to_svm_vector
 
 
 def _pil_to_feature_vector(image: Image.Image) -> np.ndarray:
@@ -42,7 +42,7 @@ def load_cnn_bundle(models_dir: Path, device: torch.device) -> Dict:
     class_to_idx = checkpoint["class_to_idx"]
     idx_to_class = {idx: cls for cls, idx in class_to_idx.items()}
 
-    model = build_resnet18_classifier(num_classes=len(class_to_idx), pretrained=False, dropout_p=0.35)
+    model = build_efficientnet_b0_classifier(num_classes=len(class_to_idx), pretrained=False, dropout_p=0.35)
     model.load_state_dict(checkpoint["model_state_dict"])
     model.to(device)
     model.eval()

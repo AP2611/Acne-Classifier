@@ -15,7 +15,14 @@ import torch.optim as optim
 from sklearn.metrics import ConfusionMatrixDisplay, accuracy_score, classification_report, confusion_matrix
 from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
 
-from data import build_resnet18_classifier, discover_dataset, get_cnn_transform, load_pil_rgb, make_splits, save_class_mapping
+from data import (
+    build_efficientnet_b0_classifier,
+    discover_dataset,
+    get_cnn_transform,
+    load_pil_rgb,
+    make_splits,
+    save_class_mapping,
+)
 
 
 class PathImageDataset(Dataset):
@@ -139,19 +146,19 @@ def main() -> None:
     val_loader = DataLoader(val_ds, batch_size=args.batch_size, shuffle=False, num_workers=0)
     test_loader = DataLoader(test_ds, batch_size=args.batch_size, shuffle=False, num_workers=0)
 
-    model = build_resnet18_classifier(num_classes=len(class_names), pretrained=True, dropout_p=0.35)
+    model = build_efficientnet_b0_classifier(num_classes=len(class_names), pretrained=True, dropout_p=0.35)
     model = model.to(device)
 
     for p in model.parameters():
         p.requires_grad = False
-    for p in model.fc.parameters():
+    for p in model.classifier.parameters():
         p.requires_grad = True
 
     criterion = nn.CrossEntropyLoss(
         weight=torch.tensor(class_weights, dtype=torch.float32, device=device),
         label_smoothing=0.08,
     )
-    optimizer = optim.AdamW(model.fc.parameters(), lr=args.lr_head, weight_decay=1e-4)
+    optimizer = optim.AdamW(model.classifier.parameters(), lr=args.lr_head, weight_decay=1e-4)
 
     print("Stage 1: training classifier head.")
     model, best_head_val = fit_with_early_stopping(
@@ -165,8 +172,8 @@ def main() -> None:
         device=device,
     )
 
-    print("Stage 2: fine-tuning layer4 + fc.")
-    for p in model.layer4.parameters():
+    print("Stage 2: fine-tuning final feature stage + classifier.")
+    for p in model.features[-1].parameters():
         p.requires_grad = True
     optimizer = optim.AdamW(
         [p for p in model.parameters() if p.requires_grad],
