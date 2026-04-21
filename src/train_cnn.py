@@ -46,12 +46,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dataset", type=Path, default=Path("acne_dataset"))
     parser.add_argument("--models-dir", type=Path, default=Path("models"))
     parser.add_argument("--reports-dir", type=Path, default=Path("reports"))
-    parser.add_argument("--epochs-head", type=int, default=8)
-    parser.add_argument("--epochs-finetune", type=int, default=6)
+    parser.add_argument("--epochs-head", type=int, default=15)
+    parser.add_argument("--epochs-finetune", type=int, default=30)
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--lr-head", type=float, default=1e-3)
-    parser.add_argument("--lr-finetune", type=float, default=1e-4)
-    parser.add_argument("--patience", type=int, default=4)
+    parser.add_argument("--lr-finetune", type=float, default=2e-4)
+    parser.add_argument("--patience", type=int, default=8)
     return parser.parse_args()
 
 
@@ -172,9 +172,11 @@ def main() -> None:
         device=device,
     )
 
-    print("Stage 2: fine-tuning final feature stage + classifier.")
-    for p in model.features[-1].parameters():
-        p.requires_grad = True
+    print("Stage 2: fine-tuning final blocks + classifier.")
+    # Unfreeze the last 3 blocks of EfficientNet-B0 (features[6], features[7], features[8])
+    for block in model.features[-3:]:
+        for p in block.parameters():
+            p.requires_grad = True
     optimizer = optim.AdamW(
         [p for p in model.parameters() if p.requires_grad],
         lr=args.lr_finetune,

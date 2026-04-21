@@ -1,5 +1,5 @@
 {
-  "best_head_validation_accuracy": 0.84,
-  "best_finetune_validation_accuracy": 0.88,
-  "test_accuracy": 0.7307692307692307
+  "best_head_validation_accuracy": 0.88,
+  "best_finetune_validation_accuracy": 0.96,
+  "test_accuracy": 0.9230769230769231
 }

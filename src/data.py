@@ -100,10 +100,12 @@ def get_cnn_transform(train: bool = True) -> transforms.Compose:
         return transforms.Compose(
             [
                 transforms.Resize((256, 256)),
-                transforms.RandomResizedCrop(IMAGE_SIZE[0], scale=(0.85, 1.0)),
+                transforms.RandomResizedCrop(IMAGE_SIZE[0], scale=(0.75, 1.0)),
                 transforms.RandomHorizontalFlip(p=0.5),
-                transforms.RandomRotation(10),
-                transforms.ColorJitter(brightness=0.15, contrast=0.15, saturation=0.1, hue=0.02),
+                transforms.RandomVerticalFlip(p=0.5),
+                transforms.RandomRotation(20),
+                transforms.RandomAffine(degrees=0, translate=(0.05, 0.05), shear=5),
+                transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.15, hue=0.03),
                 transforms.ToTensor(),
                 transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
             ]
