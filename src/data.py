@@ -8,7 +8,7 @@ from typing import Dict, List, Sequence, Tuple
 import numpy as np
 from PIL import Image
 from skimage import exposure
-from skimage.feature import hog
+from skimage.feature import hog, local_binary_pattern
 from sklearn.model_selection import train_test_split
 from torchvision import transforms
 from torchvision.models import ResNet18_Weights, resnet18
@@ -130,6 +130,7 @@ def pil_to_svm_vector(image: Image.Image, image_size: Tuple[int, int] = IMAGE_SI
     gray = np.mean(rgb_arr, axis=2)
     gray = exposure.equalize_adapthist(gray, clip_limit=0.03)
 
+    # Capture both coarse and fine texture patterns.
     hog_features = hog(
         gray,
         orientations=9,
@@ -138,14 +139,42 @@ def pil_to_svm_vector(image: Image.Image, image_size: Tuple[int, int] = IMAGE_SI
         block_norm="L2-Hys",
         feature_vector=True,
     )
+    hog_features_fine = hog(
+        gray,
+        orientations=9,
+        pixels_per_cell=(8, 8),
+        cells_per_block=(2, 2),
+        block_norm="L2-Hys",
+        feature_vector=True,
+    )
+
+    # Uniform LBP histogram keeps local micro-texture cues.
+    gray_uint8 = np.clip(gray * 255.0, 0, 255).astype(np.uint8)
+    lbp = local_binary_pattern(gray_uint8, P=8, R=1.0, method="uniform")
+    lbp_hist, _ = np.histogram(lbp, bins=np.arange(0, 11), range=(0, 10), density=True)
+    lbp_features = lbp_hist.astype(np.float32)
 
     # Add low-dimensional color histograms to keep color cues for acne classes.
-    color_hist_parts = []
+    color_hist_parts: List[np.ndarray] = []
     for channel in range(3):
-        hist, _ = np.histogram(rgb_arr[:, :, channel], bins=16, range=(0.0, 1.0), density=True)
+        hist, _ = np.histogram(rgb_arr[:, :, channel], bins=24, range=(0.0, 1.0), density=True)
         color_hist_parts.append(hist.astype(np.float32))
+
+    hsv_arr = np.asarray(image.convert("HSV"), dtype=np.float32) / 255.0
+    for channel in range(3):
+        hist, _ = np.histogram(hsv_arr[:, :, channel], bins=24, range=(0.0, 1.0), density=True)
+        color_hist_parts.append(hist.astype(np.float32))
+
     color_features = np.concatenate(color_hist_parts)
-    return np.concatenate([hog_features.astype(np.float32), color_features], axis=0)
+    return np.concatenate(
+        [
+            hog_features.astype(np.float32),
+            hog_features_fine.astype(np.float32),
+            lbp_features,
+            color_features,
+        ],
+        axis=0,
+    )
 
 
 def image_to_svm_vector(path: Path, image_size: Tuple[int, int] = IMAGE_SIZE) -> np.ndarray:

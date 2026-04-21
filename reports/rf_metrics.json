@@ -1,0 +1,19 @@
+{
+  "validation_accuracy": 0.64,
+  "test_accuracy": 0.8461538461538461,
+  "feature_dimension": 32482,
+  "best_params": {
+    "max_depth": null,
+    "max_features": "sqrt",
+    "min_samples_leaf": 4,
+    "min_samples_split": 2,
+    "n_estimators": 200
+  },
+  "probability_calibration": "sigmoid_cv3",
+  "train_class_distribution": [
+    19,
+    10,
+    22,
+    24
+  ]
+}

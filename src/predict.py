@@ -12,21 +12,19 @@ from PIL import Image
 from data import build_resnet18_classifier, get_cnn_transform, pil_to_svm_vector
 
 
-def _pil_to_svm_vector(image: Image.Image) -> np.ndarray:
+def _pil_to_feature_vector(image: Image.Image) -> np.ndarray:
     vec = pil_to_svm_vector(image)
     return vec.reshape(1, -1)
 
 
-def load_svm_bundle(models_dir: Path) -> Dict:
-    model = joblib.load(models_dir / "svm_model.joblib")
-    scaler = joblib.load(models_dir / "svm_scaler.joblib")
+def load_rf_bundle(models_dir: Path) -> Dict:
+    model = joblib.load(models_dir / "rf_model.joblib")
     classes = joblib.load(models_dir / "label_encoder.joblib")
-    return {"model": model, "scaler": scaler, "classes": classes}
+    return {"model": model, "classes": classes}
 
 
-def predict_with_svm(image: Image.Image, bundle: Dict) -> Tuple[str, float, List[Tuple[str, float]]]:
-    vec = _pil_to_svm_vector(image)
-    vec = bundle["scaler"].transform(vec)
+def predict_with_rf(image: Image.Image, bundle: Dict) -> Tuple[str, float, List[Tuple[str, float]]]:
+    vec = _pil_to_feature_vector(image)
     probs = bundle["model"].predict_proba(vec)[0]
     top_idx = int(np.argmax(probs))
     top_label = bundle["classes"][top_idx]
